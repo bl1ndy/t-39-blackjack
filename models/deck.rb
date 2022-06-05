@@ -23,4 +23,10 @@ class Deck
       CARD_VALUES[:pictured].each { |v| @cards << Card.new(v, s) }
     end
   end
+
+  def deal_card
+    card = @cards.sample
+    @cards.delete(card)
+    card
+  end
 end
