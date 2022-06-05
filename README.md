@@ -1,1 +1,1 @@
-### Project «Black Jack»
+### Project «BlackJack»
