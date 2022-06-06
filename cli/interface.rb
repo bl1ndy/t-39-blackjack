@@ -66,8 +66,8 @@ class Interface
       puts "\n"
       puts "What you're gonna do?"
       puts "\n"
-      puts '1: Take card' if @player1.hand.count < 3
-      puts '2: Check' if @player1.hand.count < 3
+      puts '1: Take card'
+      puts '2: Check'
       puts '3: Showdown'
 
       input = gets.chomp.to_i
@@ -105,8 +105,12 @@ class Interface
     p1 = 21 - @player1.current_score
     p2 = 21 - @player2.current_score
 
-    return @player2 if p1.negative? || @player2.current_score > @player1.current_score
-    return @player1 if p2.negative? || @player1.current_score > @player2.current_score
+    return if (p1 == p2) || (p1.negative? && p2.negative?)
+    return @player1 if p2.negative?
+    return @player2 if p1.negative?
+    return @player1 if @player1.current_score > @player2.current_score
+
+    @player2
   end
 
   def showdown
