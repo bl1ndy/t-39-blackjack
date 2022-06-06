@@ -5,34 +5,39 @@ require_relative '../models/player'
 
 # rubocop:disable Metrics/MethodLength, Metrics/AbcSize, Metrics/ClassLength
 class Interface
+  HAND_MAX_CARDS = 3
+  HAND_MAX_SCORE = 21
+  DEALER_LIMIT = 17
+  MAX_ROUNDS = 2
+
   def call
     print "Welcome to the Game! What's your name, sir? : "
 
     name = gets.chomp
     name = 'Player' if name.empty?
 
-    @player1 = Player.new name
-    @player2 = Player.new 'Dealer'
-    @player1.bank = 100
-    @player2.bank = 100
+    @player = Player.new name
+    @dealer = Player.new 'Dealer'
+    @player.bank = 100
+    @dealer.bank = 100
 
     loop do
       check_banks
 
       @deck = Deck.new
-      @player1.hand = []
-      @player2.hand = []
+      @player.hand = []
+      @dealer.hand = []
       @bank = 0
 
       clear_screen
       puts 'Dealing...'
       sleep 1
 
-      2.times { @player1.hand << @deck.deal_card }
-      2.times { @player2.hand << @deck.deal_card }
+      2.times { @player.hand << @deck.deal_card }
+      2.times { @dealer.hand << @deck.deal_card }
 
-      @bank += @player1.make_bet(10)
-      @bank += @player2.make_bet(10)
+      @bank += @player.make_bet(10)
+      @bank += @dealer.make_bet(10)
 
       round
 
@@ -55,14 +60,16 @@ class Interface
   end
 
   def round
+    @rounds = 1
+
     loop do
-      break if @player1.hand.count == 3
+      break if @player.hand.count == HAND_MAX_CARDS || @rounds >= MAX_ROUNDS
 
       clear_screen
-      puts "Dealer cards: #{@player2.show_back}"
-      puts "Your cards: #{@player1.show_face} >> #{@player1.current_score} points"
+      puts "Dealer cards: #{@dealer.show_back}"
+      puts "Your cards: #{@player.show_face} >> #{@player.current_score} points"
       puts "Current pot: #{@bank}"
-      puts "Your bank: #{@player1.bank}"
+      puts "Your bank: #{@player.bank}"
       puts "\n"
       puts "What you're gonna do?"
       puts "\n"
@@ -74,56 +81,57 @@ class Interface
 
       case input
       when 1
-        @player1.hand << @deck.deal_card
-        break if @player1.current_score > 21
+        @player.hand << @deck.deal_card
+        break if @player.current_score > HAND_MAX_SCORE
 
+        @rounds += 1
         dealer_turn
       when 2
+        @rounds += 1
         dealer_turn
       else
-        dealer_turn
         break
       end
     end
   end
 
   def dealer_turn
-    if @player2.current_score >= 17 || @player1.current_score > 21
+    if @dealer.current_score >= DEALER_LIMIT || @player.current_score > HAND_MAX_SCORE
       puts 'Dealer checks...'
       sleep 2
       return
     end
 
-    return unless @player2.hand.count < 3
+    return unless @dealer.hand.count < HAND_MAX_CARDS
 
-    @player2.hand << @deck.deal_card
+    @dealer.hand << @deck.deal_card
     puts 'Dealer takes card...'
     sleep 2
   end
 
   def winner
-    p1 = 21 - @player1.current_score
-    p2 = 21 - @player2.current_score
+    p1 = HAND_MAX_SCORE - @player.current_score
+    p2 = HAND_MAX_SCORE - @dealer.current_score
 
     return if (p1 == p2) || (p1.negative? && p2.negative?)
-    return @player1 if p2.negative?
-    return @player2 if p1.negative?
-    return @player1 if @player1.current_score > @player2.current_score
+    return @player if p2.negative?
+    return @dealer if p1.negative?
+    return @player if @player.current_score > @dealer.current_score
 
-    @player2
+    @dealer
   end
 
   def showdown
     clear_screen
-    puts "Dealer cards: #{@player2.show_face} >> #{@player2.current_score} points"
-    puts "Your cards: #{@player1.show_face} >> #{@player1.current_score} points"
+    puts "Dealer cards: #{@dealer.show_face} >> #{@dealer.current_score} points"
+    puts "Your cards: #{@player.show_face} >> #{@player.current_score} points"
 
     if winner
       winner.bank += @bank
       puts "#{winner.name} wins!" if winner
     else
-      @player1.bank += @bank / 2
-      @player2.bank += @bank / 2
+      @player.bank += @bank / 2
+      @dealer.bank += @bank / 2
       puts 'Draw!'
     end
 
@@ -131,7 +139,7 @@ class Interface
   end
 
   def check_banks
-    return unless @player1.bank.zero? || @player2.bank.zero?
+    return unless @player.bank.zero? || @dealer.bank.zero?
 
     puts "Players haven't enough money"
     exit
