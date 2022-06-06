@@ -15,12 +15,9 @@ class Player
   end
 
   def current_score
-    return @hand.sum(&:score) unless ace?
-
-    aces_count = @hand.count { |c| c.value == 'A' }
-    score = @hand.reject { |c| c.value == 'A' }.sum(&:score)
-    aces_count.times { score += score < 11 ? 11 : 1 }
-    score
+    @sum = 0
+    @hand.each { |c| @sum += c.score(@sum) }
+    @sum
   end
 
   def ace?

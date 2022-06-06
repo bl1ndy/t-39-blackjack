@@ -5,15 +5,21 @@ require_relative 'deck'
 class Card
   attr_reader :value, :suit
 
+  MAX_ACE = 11
+  MIN_ACE = 1
+  PICTURED_VALUE = 10
+  HAND_MAX = 21
+
   def initialize(value, suit)
     @value = value
     @suit = suit
   end
 
-  def score
-    return 11 if @value == 'A'
+  def score(hand_score = nil)
+    return @value.to_i if Deck::CARD_VALUES[:numbered].include?(@value)
+    return PICTURED_VALUE if Deck::CARD_VALUES[:pictured].include?(@value)
 
-    @score = Deck::CARD_VALUES[:numbered].include?(@value) ? @value.to_i : 10
+    hand_score + MAX_ACE > HAND_MAX ? MIN_ACE : MAX_ACE
   end
 
   def to_s
