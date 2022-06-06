@@ -22,11 +22,11 @@ class Deck
       CARD_VALUES[:numbered].each { |v| @cards << Card.new(v, s) }
       CARD_VALUES[:pictured].each { |v| @cards << Card.new(v, s) }
     end
+
+    @cards.shuffle!
   end
 
   def deal_card
-    card = @cards.sample
-    @cards.delete(card)
-    card
+    @cards.pop
   end
 end
