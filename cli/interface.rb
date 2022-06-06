@@ -3,7 +3,7 @@
 require_relative '../models/deck'
 require_relative '../models/player'
 
-# rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+# rubocop:disable Metrics/MethodLength, Metrics/AbcSize, Metrics/ClassLength
 class Interface
   def call
     print "Welcome to the Game! What's your name, sir? : "
@@ -137,4 +137,4 @@ class Interface
     exit
   end
 end
-# rubocop:enable Metrics/MethodLength, Metrics/AbcSize
+# rubocop:enable Metrics/MethodLength, Metrics/AbcSize, Metrics/ClassLength
